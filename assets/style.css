@@ -1,0 +1,9 @@
+.img_class {
+    float: left;
+    margin: 10px 10px;
+}
+
+#animal_btn {
+    margin: 0px 3px;
+    background-color: lightblue;
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+    <title>GITPHY API</title>
+</head>
+
+<body>
+
+    <div class="panel panel-default">
+
+        <div class="page-header">
+            <h1>Let's Explore the Animals</h1>
+        </div>
+        <div class="panel-body">
+            <div id="animals_containers">
+                <!-- Here is the buttons containers -->
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+
+        <div class="col-md-8">
+            <div id="result_containers">
+                <!-- Container of the pitures -->
+            </div>
+        </div>
+
+        <div class="col-md-3 col-lg-3">
+            <!-- creation of the form panel to add more animals -->
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="form_container"></div>
+                    <form id="animal_form">
+                        <legend>Add more to your collection</legend>
+
+                        <div class="form-group">
+                            <label for="">Add more</label>
+                            <input type="text" class="form-control" id="add_animals">
+                        </div>
+                        <button id="button_animal" class="btn btn-md btn-primary">Send</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1 col-lg-1">
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript">
+        var animals = ["cat", "dog", "elephan", "rabit", "hamster", "slunk",
+            "goldfish", "bird", "flog", "ferret", "gerbill", "chicken", "cabybara", "caterpillar", "rat"
+        ];
+
+        // Function to display the animal info
+        function animal_info() {
+            // This option clean the container in order to append new results everytime
+            $("#result_containers").empty();
+            //use of the public key
+            var api_key = "5971183596a742608bdee5a05d569378";
+            //creation of the variable animal search. Will collect the name from the data-name content in the button
+            var animal_search = $(this).attr("data-name");
+            //here is the url from giphy
+            var query_url = "https://api.giphy.com/v1/gifs/search?api_key=" + api_key + "&q=" + animal_search + "&limit=25&offset=0&rating=G&lang=en";
+            $.ajax({
+                url: query_url,
+                method: "GET"
+            }).done(function(response) {
+                // collecting the array from response into the new var "requested"
+                var requested = response.data;
+                console.log(requested);
+                // looping inside the array and printing the result 
+                for (var j = 0; j < requested.length; j++) {
+                    //creation of the TAG of rating
+                    var animal_div = $("<div>");
+                    animal_div.addClass("img_class");
+                    var tag = $("<p>").text("Rating: " + requested[j].rating);
+                    animal_div.append(tag);
+                    //creation of every <img>//
+                    var anm = $("<img>");
+                    var img = requested[j].images.fixed_height.url;
+                    var img_still = requested[j].images.fixed_height_still.url;
+                    anm.attr("src", img);
+                    // Here we add the initial status of gif animated, animate src and still src
+                    anm.attr("data-animate", img);
+                    anm.attr("data-still", img_still);
+                    anm.attr("data-state", "animate");
+                    anm.addClass("gif");
+                    // append all attributes into animal_div
+                    animal_div.append(anm);
+                    ////////
+                    $("#result_containers").append(animal_div);
+                }
+                ////////////////////////////////////////////////////
+                // Function to stop the Gif
+                $(".gif").on("click", function() {
+                    // getting the value of data-state from every gif
+                    var state = $(this).attr("data-state");
+                    if (state == "still") {
+                        // Here is changing the attibutes like src and data-state to animate
+                        $(this).attr("src", $(this).attr("data-animate"));
+                        $(this).attr("data-state", "animate");
+                    } else {
+                        // here is changing the attibute like src and data-state to still
+                        $(this).attr("src", $(this).attr("data-still"));
+                        $(this).attr("data-state", "still");
+                    }
+                })
+            });
+
+        }
+        // Function to capture the button "add" to the array
+        //  This function would add more animals to the array of buttons
+        // //////////////////////////////////////////////////////////////
+        $("#button_animal").on("click", function(event) {
+            event.preventDefault();
+            var animal_new = $("#add_animals").val().trim();
+            animals.push(animal_new);
+            create_btn();
+            $("#add_animals").val("")
+        })
+
+
+
+        // ////////////////////////////////////////////////////////////
+        //Function to create the buttons//////
+        function create_btn() {
+
+            $("#animals_containers").empty();
+            for (var i = 0; i < animals.length; i++) {
+                var bttn = $("<button>");
+                bttn.addClass("btn btn-default");
+                bttn.attr("id", "animal_btn");
+                bttn.text(animals[i]);
+                bttn.attr("data-name", animals[i]);
+                $("#animals_containers").append(bttn);
+            }
+        }
+        // /////////////////////
+        $("#animals_containers").on("click", "#animal_btn", animal_info);
+        create_btn();
+    </script>
+</body>
+
+</html>
